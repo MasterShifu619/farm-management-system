@@ -32,6 +32,16 @@ export class PlanListComponent implements OnInit {
     notes: '',
   };
 
+  // id of the plan currently being edited inline, and its in-progress edits
+  editingPlanId = signal<number | null>(null);
+  editForm: PlanRequest = {
+    farmId: null,
+    hasPerimeterFencing: false,
+    hasVisitorLog: false,
+    hasDisinfectionProtocol: false,
+    notes: '',
+  };
+
   ngOnInit(): void {
     this.loadPlans();
     if (this.role === 'PRODUCER') {
@@ -63,6 +73,31 @@ export class PlanListComponent implements OnInit {
     this.planService.list().subscribe({
       next: (plans) => this.plans.set(plans),
       error: (err) => console.error('Failed to load plans', err),
+    });
+  }
+
+  startEdit(plan: BiosecurityPlan): void {
+    this.editingPlanId.set(plan.id);
+    this.editForm = {
+      farmId: plan.farm.id,
+      hasPerimeterFencing: plan.hasPerimeterFencing,
+      hasVisitorLog: plan.hasVisitorLog,
+      hasDisinfectionProtocol: plan.hasDisinfectionProtocol,
+      notes: plan.notes,
+    };
+  }
+
+  cancelEdit(): void {
+    this.editingPlanId.set(null);
+  }
+
+  saveEdit(id: number): void {
+    this.planService.update(id, this.editForm).subscribe({
+      next: () => {
+        this.editingPlanId.set(null);
+        this.loadPlans();
+      },
+      error: (err) => console.error('Failed to update plan', err),
     });
   }
 

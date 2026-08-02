@@ -1,6 +1,6 @@
 import { Farm } from './farm.model';
 
-export type PlanStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED';
+export type PlanStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
 
 export interface BiosecurityPlan {
   id: number;

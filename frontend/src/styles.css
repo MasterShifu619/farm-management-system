@@ -1,1 +1,217 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global styles */
+
+:root {
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-danger: #dc2626;
+  --color-danger-dark: #b91c1c;
+  --color-success: #16a34a;
+  --color-text: #1f2937;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+  --color-bg: #f9fafb;
+  --color-surface: #ffffff;
+
+  --status-draft-bg: #f3f4f6;
+  --status-draft-text: #374151;
+  --status-submitted-bg: #fef3c7;
+  --status-submitted-text: #92400e;
+  --status-approved-bg: #dcfce7;
+  --status-approved-text: #166534;
+  --status-rejected-bg: #fee2e2;
+  --status-rejected-text: #991b1b;
+
+  --radius: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+h3 {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Forms */
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+form label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+input[type='text'],
+input[type='password'],
+input:not([type]),
+select {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* Buttons */
+
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+button:hover {
+  background: var(--color-primary-dark);
+}
+
+button.danger {
+  background: var(--color-danger);
+}
+
+button.danger:hover {
+  background: var(--color-danger-dark);
+}
+
+/* Tables */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+thead {
+  background: #f3f4f6;
+}
+
+th {
+  text-align: left;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+td {
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.92rem;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: #fafafa;
+}
+
+td button {
+  margin-right: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.82rem;
+}
+
+/* Status badges */
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.badge-draft {
+  background: var(--status-draft-bg);
+  color: var(--status-draft-text);
+}
+
+.badge-submitted {
+  background: var(--status-submitted-bg);
+  color: var(--status-submitted-text);
+}
+
+.badge-approved {
+  background: var(--status-approved-bg);
+  color: var(--status-approved-text);
+}
+
+.badge-rejected {
+  background: var(--status-rejected-bg);
+  color: var(--status-rejected-text);
+}
+
+.error-text {
+  color: var(--color-danger);
+  font-size: 0.9rem;
+}
+
+.hint-text {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}

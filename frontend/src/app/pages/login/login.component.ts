@@ -23,7 +23,9 @@ export class LoginComponent {
   onSubmit(): void {
     this.error.set('');
     this.authService.login(this.username, this.password).subscribe({
-      next: () => this.router.navigate(['/farms']),
+      // reviewers don't have farms (backend blocks them from /api/farms
+      // entirely), so send them straight to the page that's actually theirs
+      next: () => this.router.navigate([this.authService.getRole() === 'REVIEWER' ? '/plans' : '/farms']),
       error: () => this.error.set('Invalid username or password'),
     });
   }

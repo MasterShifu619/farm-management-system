@@ -15,8 +15,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
-// PRODUCER: create/edit/submit own farm's plans (DRAFT -> SUBMITTED).
-// REVIEWER: view all SUBMITTED plans, approve or send back to DRAFT.
+// PRODUCER: create/edit/submit own farm's plans (DRAFT/REJECTED -> SUBMITTED).
+// REVIEWER: view all SUBMITTED plans, approve (-> APPROVED) or reject (-> REJECTED,
+// distinct from DRAFT so the producer can see it was actively rejected, not just
+// never submitted).
 // STATE_OFFICIAL: read-only, plans for farms in their own state.
 @RestController
 @RequestMapping("/api/plans")
@@ -62,8 +64,8 @@ public class BiosecurityPlanController {
         User user = currentUserService.getCurrentUser(authentication);
         BiosecurityPlan plan = findPlanOrNotFound(id);
         assertOwnsPlanFarm(plan, user);
-        if (plan.getStatus() != PlanStatus.DRAFT) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only DRAFT plans can be edited");
+        if (plan.getStatus() != PlanStatus.DRAFT && plan.getStatus() != PlanStatus.REJECTED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only DRAFT or REJECTED plans can be edited");
         }
         applyFields(plan, request);
         return planRepository.save(plan);
@@ -75,8 +77,8 @@ public class BiosecurityPlanController {
         User user = currentUserService.getCurrentUser(authentication);
         BiosecurityPlan plan = findPlanOrNotFound(id);
         assertOwnsPlanFarm(plan, user);
-        if (plan.getStatus() != PlanStatus.DRAFT) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only DRAFT plans can be submitted");
+        if (plan.getStatus() != PlanStatus.DRAFT && plan.getStatus() != PlanStatus.REJECTED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only DRAFT or REJECTED plans can be submitted");
         }
         plan.setStatus(PlanStatus.SUBMITTED);
         return planRepository.save(plan);
@@ -100,7 +102,7 @@ public class BiosecurityPlanController {
         if (plan.getStatus() != PlanStatus.SUBMITTED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Only SUBMITTED plans can be rejected");
         }
-        plan.setStatus(PlanStatus.DRAFT);
+        plan.setStatus(PlanStatus.REJECTED);
         return planRepository.save(plan);
     }
 

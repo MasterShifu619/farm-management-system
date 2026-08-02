@@ -1,47 +1,71 @@
-<h2>Biosecurity Plans — {{ authService.getUsername() }} ({{ role }})</h2>
+<div class="page">
+  <h2>Biosecurity Plans — {{ authService.getUsername() }} ({{ role }})</h2>
 
-<div *ngIf="role === 'PRODUCER'">
-  <h3>New Plan</h3>
-  <form (ngSubmit)="createPlan()">
-    <select [(ngModel)]="newPlan.farmId" name="farmId" required>
-      <option [ngValue]="null" disabled>Select a farm</option>
-      <option *ngFor="let farm of myFarms()" [ngValue]="farm.id">{{ farm.name }}</option>
-    </select>
-    <label><input type="checkbox" [(ngModel)]="newPlan.hasPerimeterFencing" name="hasPerimeterFencing" /> Perimeter fencing</label>
-    <label><input type="checkbox" [(ngModel)]="newPlan.hasVisitorLog" name="hasVisitorLog" /> Visitor log</label>
-    <label><input type="checkbox" [(ngModel)]="newPlan.hasDisinfectionProtocol" name="hasDisinfectionProtocol" /> Disinfection protocol</label>
-    <input [(ngModel)]="newPlan.notes" name="notes" placeholder="Notes" />
-    <button type="submit">Create Plan</button>
-  </form>
+  <div class="card" *ngIf="role === 'PRODUCER'">
+    <h3>New Plan</h3>
+    <form (ngSubmit)="createPlan()">
+      <select [(ngModel)]="newPlan.farmId" name="farmId" required>
+        <option [ngValue]="null" disabled>Select a farm</option>
+        <option *ngFor="let farm of myFarms()" [ngValue]="farm.id">{{ farm.name }}</option>
+      </select>
+      <label><input type="checkbox" [(ngModel)]="newPlan.hasPerimeterFencing" name="hasPerimeterFencing" /> Perimeter fencing</label>
+      <label><input type="checkbox" [(ngModel)]="newPlan.hasVisitorLog" name="hasVisitorLog" /> Visitor log</label>
+      <label><input type="checkbox" [(ngModel)]="newPlan.hasDisinfectionProtocol" name="hasDisinfectionProtocol" /> Disinfection protocol</label>
+      <input [(ngModel)]="newPlan.notes" name="notes" placeholder="Notes" style="flex: 1; min-width: 160px" />
+      <button type="submit">Create Plan</button>
+    </form>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Farm</th>
+        <th>Status</th>
+        <th>Fencing</th>
+        <th>Visitor Log</th>
+        <th>Disinfection</th>
+        <th>Notes</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let plan of plans()">
+        <td>{{ plan.farm.name }}</td>
+        <td>
+          <span class="badge" [ngClass]="{
+            'badge-draft': plan.status === 'DRAFT',
+            'badge-submitted': plan.status === 'SUBMITTED',
+            'badge-approved': plan.status === 'APPROVED',
+            'badge-rejected': plan.status === 'REJECTED'
+          }">{{ plan.status }}</span>
+        </td>
+        <ng-container *ngIf="editingPlanId() === plan.id; else readOnlyRow">
+          <td><input type="checkbox" [(ngModel)]="editForm.hasPerimeterFencing" name="editFencing-{{ plan.id }}" /></td>
+          <td><input type="checkbox" [(ngModel)]="editForm.hasVisitorLog" name="editVisitorLog-{{ plan.id }}" /></td>
+          <td><input type="checkbox" [(ngModel)]="editForm.hasDisinfectionProtocol" name="editDisinfection-{{ plan.id }}" /></td>
+          <td><input [(ngModel)]="editForm.notes" name="editNotes-{{ plan.id }}" /></td>
+          <td>
+            <button (click)="saveEdit(plan.id)">Save</button>
+            <button class="danger" (click)="cancelEdit()">Cancel</button>
+          </td>
+        </ng-container>
+        <ng-template #readOnlyRow>
+          <td>{{ plan.hasPerimeterFencing ? 'Yes' : 'No' }}</td>
+          <td>{{ plan.hasVisitorLog ? 'Yes' : 'No' }}</td>
+          <td>{{ plan.hasDisinfectionProtocol ? 'Yes' : 'No' }}</td>
+          <td>{{ plan.notes }}</td>
+          <td>
+            <button *ngIf="role === 'PRODUCER' && (plan.status === 'DRAFT' || plan.status === 'REJECTED')" (click)="startEdit(plan)">Edit</button>
+            <button *ngIf="role === 'PRODUCER' && (plan.status === 'DRAFT' || plan.status === 'REJECTED')" (click)="submit(plan.id)">
+              {{ plan.status === 'REJECTED' ? 'Resubmit' : 'Submit' }}
+            </button>
+            <button *ngIf="role === 'REVIEWER' && plan.status === 'SUBMITTED'" (click)="approve(plan.id)">Approve</button>
+            <button class="danger" *ngIf="role === 'REVIEWER' && plan.status === 'SUBMITTED'" (click)="reject(plan.id)">Reject</button>
+          </td>
+        </ng-template>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top: 1rem"><a routerLink="/farms">← View Farms</a></p>
 </div>
-
-<table border="1" cellpadding="6">
-  <thead>
-    <tr>
-      <th>Farm</th>
-      <th>Status</th>
-      <th>Fencing</th>
-      <th>Visitor Log</th>
-      <th>Disinfection</th>
-      <th>Notes</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let plan of plans()">
-      <td>{{ plan.farm.name }}</td>
-      <td>{{ plan.status }}</td>
-      <td>{{ plan.hasPerimeterFencing ? 'Yes' : 'No' }}</td>
-      <td>{{ plan.hasVisitorLog ? 'Yes' : 'No' }}</td>
-      <td>{{ plan.hasDisinfectionProtocol ? 'Yes' : 'No' }}</td>
-      <td>{{ plan.notes }}</td>
-      <td>
-        <button *ngIf="role === 'PRODUCER' && plan.status === 'DRAFT'" (click)="submit(plan.id)">Submit</button>
-        <button *ngIf="role === 'REVIEWER' && plan.status === 'SUBMITTED'" (click)="approve(plan.id)">Approve</button>
-        <button *ngIf="role === 'REVIEWER' && plan.status === 'SUBMITTED'" (click)="reject(plan.id)">Reject</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-<p><a routerLink="/farms">View Farms</a></p>

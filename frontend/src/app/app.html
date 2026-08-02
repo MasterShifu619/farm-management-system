@@ -1,15 +1,17 @@
 <nav>
-  <a routerLink="/farms">Farms</a> |
-  <a routerLink="/plans">Plans</a>
-  <span *ngIf="authService.isLoggedIn()">
-    — {{ authService.getUsername() }} ({{ authService.getRole() }})
-    <button (click)="logout()">Logout</button>
-  </span>
-  <span *ngIf="!authService.isLoggedIn()">
-    — <a routerLink="/login">Login</a>
-  </span>
+  <div class="nav-links">
+    <a routerLink="/farms">Farms</a>
+    <a routerLink="/plans">Plans</a>
+  </div>
+  <div class="nav-user">
+    <ng-container *ngIf="authService.isLoggedIn(); else loggedOut">
+      <span>{{ authService.getUsername() }} ({{ authService.getRole() }})</span>
+      <button (click)="logout()">Logout</button>
+    </ng-container>
+    <ng-template #loggedOut>
+      <a routerLink="/login">Login</a>
+    </ng-template>
+  </div>
 </nav>
-
-<hr />
 
 <router-outlet></router-outlet>

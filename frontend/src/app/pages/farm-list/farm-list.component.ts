@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { Farm, FarmRequest } from '../../models/farm.model';
 import { FarmService } from '../../services/farm.service';
 import { AuthService } from '../../services/auth.service';
@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class FarmListComponent implements OnInit {
   private farmService = inject(FarmService);
+  private router = inject(Router);
   protected authService = inject(AuthService);
 
   // signal, not a plain field: this app is zoneless (no zone.js dependency),
@@ -25,6 +26,13 @@ export class FarmListComponent implements OnInit {
   newFarm: FarmRequest = { name: '', stateCode: '' };
 
   ngOnInit(): void {
+    // reviewers have no farms and the backend blocks them from this endpoint
+    // entirely (403) — bounce them to the page that's actually theirs, covers
+    // direct navigation / refresh, not just the post-login redirect
+    if (this.role === 'REVIEWER') {
+      this.router.navigate(['/plans']);
+      return;
+    }
     this.loadFarms();
   }
 

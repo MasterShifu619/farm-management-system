@@ -1,0 +1,27 @@
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.5rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.25rem;
+  font-weight: 500;
+}
+
+.nav-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.nav-user button {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.82rem;
+}

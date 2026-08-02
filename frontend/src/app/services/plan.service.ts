@@ -17,6 +17,10 @@ export class PlanService {
     return this.http.post<BiosecurityPlan>(API_URL, request);
   }
 
+  update(id: number, request: PlanRequest): Observable<BiosecurityPlan> {
+    return this.http.put<BiosecurityPlan>(`${API_URL}/${id}`, request);
+  }
+
   submit(id: number): Observable<BiosecurityPlan> {
     return this.http.post<BiosecurityPlan>(`${API_URL}/${id}/submit`, null);
   }
