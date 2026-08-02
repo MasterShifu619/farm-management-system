@@ -10,7 +10,20 @@
       "Bash(nohup ./mvnw -q spring-boot:run -Dspring-boot.run.arguments=\"--logging.level.org.springframework.security=DEBUG\")",
       "Bash(kill -9 201937)",
       "Bash(awk '{print $1}')",
-      "Bash(xargs -r kill -9)"
+      "Bash(xargs -r kill -9)",
+      "Bash(npx ng *)",
+      "Bash(curl -s -i -X OPTIONS http://localhost:8080/api/auth/login -H 'Origin: http://localhost:4200' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: Content-Type')",
+      "Bash(curl -s -i -X POST http://localhost:8080/api/auth/login -H 'Origin: http://localhost:4200' -H 'Content-Type: application/json' -d '{\"username\":\"producer1\",\"password\":\"password123\"}')",
+      "Bash(curl -s http://localhost:4200/)",
+      "Bash(curl -s http://localhost:4200/main.js)",
+      "Bash(node -e \"console.log\\(require.resolve\\('playwright'\\)\\)\")",
+      "Bash(node -e \"console.log\\(require.resolve\\('playwright-core'\\)\\)\")",
+      "Bash(npm ls *)",
+      "Bash(npx --yes playwright --version)",
+      "Bash(dpkg -l)",
+      "Bash(npx *)",
+      "Bash(npm install *)",
+      "Bash(node *)"
     ]
   }
 }

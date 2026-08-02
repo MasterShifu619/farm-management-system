@@ -1,0 +1,33 @@
+<h2>Farms — {{ authService.getUsername() }} ({{ role }})</h2>
+
+<div *ngIf="role === 'PRODUCER'">
+  <h3>Add Farm</h3>
+  <form (ngSubmit)="createFarm()">
+    <input [(ngModel)]="newFarm.name" name="name" placeholder="Farm name" required />
+    <input [(ngModel)]="newFarm.stateCode" name="stateCode" placeholder="State (e.g. NC)" required />
+    <button type="submit">Create</button>
+  </form>
+</div>
+
+<table border="1" cellpadding="6">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>State</th>
+      <th>Owner</th>
+      <th *ngIf="role === 'PRODUCER'">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let farm of farms()">
+      <td>{{ farm.name }}</td>
+      <td>{{ farm.stateCode }}</td>
+      <td>{{ farm.owner.username }}</td>
+      <td *ngIf="role === 'PRODUCER'">
+        <button (click)="deleteFarm(farm.id)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p><a routerLink="/plans">View Biosecurity Plans</a></p>
