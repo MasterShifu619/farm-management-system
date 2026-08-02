@@ -1,6 +1,7 @@
 package com.farmmanagement.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,11 +10,14 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+// hibernateLazyInitializer/handler ignored so Jackson can serialize a lazy-loaded
+// User (e.g. Farm.owner) without choking on the Hibernate proxy's internal fields
 @Entity
 @Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
     @Id

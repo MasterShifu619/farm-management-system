@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pkill -9 -f \"com.farmmanagement.backend.BackendApplication\")",
+      "Bash(nohup ./mvnw -q spring-boot:run)",
+      "Bash(echo \"pid $!\")",
+      "Bash(./mvnw -q compile)",
+      "Bash(./mvnw -q spring-boot:run)",
+      "Bash(disown)",
+      "Bash(nohup ./mvnw -q spring-boot:run -Dspring-boot.run.arguments=\"--logging.level.org.springframework.security=DEBUG\")",
+      "Bash(kill -9 201937)",
+      "Bash(awk '{print $1}')",
+      "Bash(xargs -r kill -9)"
+    ]
+  }
+}

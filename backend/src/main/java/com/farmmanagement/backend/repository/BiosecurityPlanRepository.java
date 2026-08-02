@@ -9,4 +9,6 @@ import java.util.List;
 public interface BiosecurityPlanRepository extends JpaRepository<BiosecurityPlan, Long> {
     List<BiosecurityPlan> findByFarmId(Long farmId);
     List<BiosecurityPlan> findByStatus(PlanStatus status);
+    List<BiosecurityPlan> findByFarm_Owner_Id(Long ownerId);
+    List<BiosecurityPlan> findByFarm_StateCode(String stateCode);
 }
