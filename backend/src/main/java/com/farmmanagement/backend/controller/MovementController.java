@@ -1,10 +1,9 @@
 package com.farmmanagement.backend.controller;
 
+import com.farmmanagement.backend.dto.FarmDistanceResponse;
 import com.farmmanagement.backend.entity.Movement;
-import com.farmmanagement.backend.repository.MovementRepository;
+import com.farmmanagement.backend.service.MovementService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,22 +14,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MovementController {
 
-    private final MovementRepository movementRepository;
+    private final MovementService movementService;
 
     @GetMapping
     @PreAuthorize("hasAnyRole('PRODUCER','REVIEWER','STATE_OFFICIAL')")
     public List<Movement> listMovements() {
-        return movementRepository.findAll();
+        return movementService.listMovements();
     }
 
-    // TODO (live-coding target, do not implement ahead of time): given a source
-    // farm id and a hop count N, BFS over Movement edges (source -> destination)
-    // and return every farm reachable within N hops.
     @GetMapping("/traversal")
     @PreAuthorize("hasAnyRole('PRODUCER','REVIEWER','STATE_OFFICIAL')")
-    public ResponseEntity<String> findFarmsWithinMovements(
-            @RequestParam Long farmId, @RequestParam int hops) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                .body("TODO: BFS traversal over Movement edges, not yet implemented");
+    public List<FarmDistanceResponse> findFarmsWithinMovements(
+            @RequestParam Long farmId, @RequestParam int hops,
+            @RequestParam(required = false) String species) {
+        return movementService.findFarmsWithinMovements(farmId, hops, species);
     }
 }
