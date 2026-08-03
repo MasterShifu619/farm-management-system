@@ -63,10 +63,64 @@ Toolchain decision: apt-installed Java 17 + apt maven (already have Java 17; jus
 
 ## Phase 6 — Practice Round (Movement Traversal, on a throwaway branch)
 
-- Create `practice/movement-traversal` branch
-- Together implement "find farms within N movements" (graph traversal over `Movement` edges — BFS from a source farm) end to end: repository/query support, controller endpoint, quick `curl`/Postman verification (frontend hook optional, likely not needed given the 20-min live window)
-- Once it works and is understood, **do not merge** — switch back to `main`, which stays exactly at the clean TODO-stub state
-- Goal: user has built this exact feature once already before doing it live Monday, so the live version is muscle memory, not first-attempt
+Practiced once already on `feat/disease-outbreak` (branch name flexible — any throwaway branch off `main` works). Built in two stages on purpose: get a working, correct feature first, then add the visual so the "reveal" lands. Both stages recreated below in enough detail to redo from scratch.
+
+**Do not merge this branch.** Once built and understood, switch back to `main`, which stays exactly at the clean TODO-stub state for the actual interview.
+
+### Stage 1 — backend traversal + species filter + plain table
+
+Trigger prompt used (this alone was enough — the algorithm spec below was already known from this doc, not restated in chat):
+> "lets make a small frontend also to demo this"
+
+Backend — `MovementController`, replacing the `/traversal` 501 stub:
+
+- `GET /api/movements/traversal?farmId=X&hops=N&species=(optional)`
+- **Not** a plain single-queue BFS — level-by-level, because chronology has to be enforced per level:
+  - Track two maps: `farmId -> hopCount` and `farmId -> earliestExposureDate`.
+  - Source farm starts at hop 0 with no date constraint (`LocalDate.MIN`).
+  - At each level, only follow a farm's outgoing movements whose `movementDate` is **on/after** the date exposure arrived at that farm — a chain can't trace backwards in time.
+  - If multiple edges reach the same farm within the same level, keep the **earliest** qualifying date (most permissive for continuing further hops).
+  - Stop expanding once `hops` levels are done or the frontier is empty.
+  - Exclude the source farm itself from the result.
+- `species` optional query param: when present, only follow movements of that species. Added `MovementRepository.findBySourceFarmIdAndSpecies(Long, String)` and branch on whether the param is present. Omitted/blank = no filter, trace everything.
+- Response DTO (`FarmDistanceResponse`): `farmId`, `farmName`, `stateCode`, `hops`, `earliestExposureDate`. Sorted by hops ascending.
+- Error handling: 404 if `farmId` doesn't exist, 400 if `hops < 0`.
+- Verify with curl against the 5-movement seed graph before touching the frontend: a few hop counts, a species filter that should exclude a branch (Cattle vs Swine legs split at Blue Ridge → Lowcountry), a dead-end farm (empty result), an unknown farm (404).
+
+Frontend — new `/traversal` route + nav link, `MovementTraversalComponent`:
+
+- Form: source farm dropdown, hop count number input, animal dropdown (default "All").
+- **Farm and species dropdowns are built from `GET /api/movements` data, not `GET /api/farms`** — the farms endpoint is role-scoped and blocks REVIEWER entirely, but movements are visible to every role. Derive unique farms/species by scanning `sourceFarm`/`destinationFarm`/`species` across all movements.
+- Results table: farm, state, hops away, earliest exposure date.
+- No graph yet — just the working form + table.
+
+### Stage 2 — the graph (the reveal)
+
+Real trigger prompts, in order (a genuine exploratory question, then confirmation, then one follow-up):
+> "how can I present this better in terms of a graph or something on the screen? Is it possible?"
+> (recommended an SVG node-link diagram, small graph so no layout library needed)
+> "Yes, lets go with the first option showing all the movement data in the db at the top and then option to find movement traversal"
+> "Can the arrows also have the animals printed on it" (added after the first graph pass)
+
+What got built, above the existing Stage 1 form:
+
+- SVG node-link diagram: every farm from movement data as a circle, ring layout (evenly spaced around a circle by angle, radius ~160px, centered in a 420×420 viewBox).
+- Every movement as a directed arrow between farm circles — trimmed back by node radius (+ extra gap) so the arrowhead marker lands cleanly on the circle's edge instead of hiding under it.
+- Species name labeled directly on each arrow: positioned at the edge midpoint, offset perpendicular off the line (~10px) so it doesn't sit on top of the arrow, rotated to read along the arrow's direction, flipped upright when the arrow points right-to-left so it's never upside down.
+- Color logic (sequential ramp, not arbitrary per-hop hues) — only applied after a traversal query runs:
+  - Source farm: darkest step.
+  - Reachable farms: progressively lighter with increasing hop distance.
+  - Unreached farms: neutral gray.
+  - Small legend underneath explaining the four states.
+- When a species filter is selected: arrows not carrying that species dim to ~20% opacity — visible before even looking at the results table, reinforces that some diseases only trace through one animal.
+- Hover tooltips via native SVG `<title>` elements on both nodes and edges (farm name/state; species/date) — no custom tooltip component, deliberate simplification for an internal demo tool.
+- Before any query runs, the graph still renders the full unfiltered network so there's always something to look at.
+
+### Also worth knowing when recreating
+
+- `CLAUDE.md`/`PLAN.md` (this file) travel with every branch — the base algorithm spec doesn't need restating in chat, only genuine follow-up asks (chronology, species, visualization) do.
+- The date-chronology fix in Stage 1 actually originated from a question, not an instruction: *"is the date being considered to calculate hops"* → gap explained → *"yes"* to fix it. Worth noticing that gap live rather than scripting it.
+- Goal: this exact feature has been built once already before doing it live Monday, so the live version is muscle memory, not a first attempt.
 
 ## Verification (recurring, every phase)
 
