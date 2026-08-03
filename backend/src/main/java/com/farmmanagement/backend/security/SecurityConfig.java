@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // dev-only DB browser
                         .requestMatchers("/error").permitAll() // let 404s etc. surface their real status instead of a masking 403
+                        .requestMatchers("/actuator/**").permitAll() // Prometheus scrapes this with no auth mechanism of its own
                         .anyRequest().authenticated())
                 // H2 console renders in a frame; same-origin frames are fine for local dev
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
