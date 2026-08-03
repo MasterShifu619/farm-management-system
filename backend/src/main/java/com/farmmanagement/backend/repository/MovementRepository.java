@@ -8,4 +8,5 @@ import java.util.List;
 public interface MovementRepository extends JpaRepository<Movement, Long> {
     List<Movement> findBySourceFarmId(Long farmId);
     List<Movement> findByDestinationFarmId(Long farmId);
+    List<Movement> findBySourceFarmIdAndSpecies(Long farmId, String species);
 }
