@@ -1,0 +1,105 @@
+<div class="page">
+  <h2>Movement Traversal — {{ authService.getUsername() }} ({{ authService.getRole() }})</h2>
+  <p class="hint-text">All recorded animal movements between farms. Pick a source farm, hop count, and optionally an animal (some diseases only spread through one species) to trace disease-exposure reach.</p>
+
+  <div class="card">
+    <svg [attr.viewBox]="'0 0 ' + svgSize + ' ' + svgSize" style="width: 100%; max-width: 480px; display: block; margin: 0 auto">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#898781" />
+        </marker>
+      </defs>
+
+      <g *ngFor="let edge of edges()">
+        <line
+          [attr.x1]="edge.x1" [attr.y1]="edge.y1"
+          [attr.x2]="edge.x2" [attr.y2]="edge.y2"
+          [attr.opacity]="edgeOpacity(edge)"
+          stroke="#898781" stroke-width="2" marker-end="url(#arrow)">
+          <title>{{ edge.species }} — {{ edge.movementDate }}</title>
+        </line>
+        <text
+          [attr.x]="edge.labelX" [attr.y]="edge.labelY"
+          [attr.transform]="'rotate(' + edge.labelAngle + ' ' + edge.labelX + ' ' + edge.labelY + ')'"
+          [attr.opacity]="edgeOpacity(edge)"
+          text-anchor="middle" font-size="10" fill="#52514e">
+          {{ edge.species }}
+        </text>
+      </g>
+
+      <g *ngFor="let node of nodes()">
+        <circle
+          [attr.cx]="node.x" [attr.cy]="node.y" [attr.r]="nodeRadius"
+          [attr.fill]="nodeFill(node.farm.id)"
+          [attr.stroke]="nodeStroke(node.farm.id)"
+          [attr.stroke-width]="node.farm.id === farmId ? 3 : 1.5">
+          <title>{{ node.farm.name }} ({{ node.farm.stateCode }})</title>
+        </circle>
+        <text
+          [attr.x]="node.x" [attr.y]="node.y + nodeRadius + 14"
+          text-anchor="middle" font-size="11" fill="#52514e">
+          {{ node.farm.name }}
+        </text>
+      </g>
+    </svg>
+
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 0.75rem; font-size: 0.82rem; color: #52514e">
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#0d366b;margin-right:4px"></span>Source</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#256abf;margin-right:4px"></span>Closer hop</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#3987e5;margin-right:4px"></span>Farther hop</span>
+      <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e1e0d9;border:1px solid #c3c2b7;margin-right:4px"></span>Not reached</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Find Reachable Farms</h3>
+    <form (ngSubmit)="runTraversal()">
+      <select [(ngModel)]="farmId" name="farmId" required>
+        <option [ngValue]="null" disabled>Select source farm</option>
+        <option *ngFor="let farm of farms()" [ngValue]="farm.id">{{ farm.name }} ({{ farm.stateCode }})</option>
+      </select>
+      <label>
+        Hops
+        <input type="number" [(ngModel)]="hops" name="hops" min="0" style="width: 4rem" required />
+      </label>
+      <label>
+        Animal
+        <select [(ngModel)]="selectedSpecies" name="species">
+          <option value="ALL">All</option>
+          <option *ngFor="let s of speciesOptions()" [value]="s">{{ s }}</option>
+        </select>
+      </label>
+      <button type="submit">Find Farms</button>
+    </form>
+  </div>
+
+  <p *ngIf="error()" class="error-text">{{ error() }}</p>
+  <p *ngIf="loading()" class="hint-text">Running traversal…</p>
+
+  <table *ngIf="results() as res">
+    <caption class="hint-text" style="caption-side: top; text-align: left; margin-bottom: 0.5rem">
+      Animal filter: {{ selectedSpecies === 'ALL' ? 'All animals' : selectedSpecies }}
+    </caption>
+    <thead>
+      <tr>
+        <th>Farm</th>
+        <th>State</th>
+        <th>Hops away</th>
+        <th>Earliest possible exposure</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of res">
+        <td>{{ r.farmName }}</td>
+        <td>{{ r.stateCode }}</td>
+        <td>{{ r.hops }}</td>
+        <td>{{ r.earliestExposureDate }}</td>
+      </tr>
+      <tr *ngIf="res.length === 0">
+        <td colspan="4" class="hint-text">No farms reachable within that many hops.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top: 1rem"><a routerLink="/farms">← View Farms</a></p>
+</div>
